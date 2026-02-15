@@ -1,0 +1,117 @@
+@layer components {
+  /*  MAIN CONTENT  */
+  .main-content {
+    flex: 1;
+    margin-left: var(--sidebar-width);
+    min-height: calc(100vh - var(--header-height));
+    padding: var(--space-6);
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-6);
+  }
+
+  /*  PAGE VIEWS  */
+  .page-view {
+    display: none;
+    flex-direction: column;
+    gap: var(--space-6);
+    flex: 1;
+    animation: fadeIn 0.25s ease;
+  }
+
+  .page-view.active {
+    display: flex;
+  }
+
+  @keyframes fadeIn {
+    from {
+      opacity: 0;
+      transform: translateY(8px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  /*  PAGE HEADER  */
+  .page-header {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: var(--space-4);
+  }
+
+  .page-title {
+    font-family: var(--font-display);
+    font-size: var(--fs-2xl);
+    font-weight: var(--fw-black);
+    letter-spacing: var(--ls-tight);
+    color: var(--clr-text-primary);
+    line-height: var(--lh-tight);
+  }
+
+  .page-subtitle {
+    font-size: var(--fs-sm);
+    color: var(--clr-text-muted);
+    margin-top: var(--space-1);
+  }
+
+  /*  CARDS  */
+  .card {
+    background: var(--clr-bg-card);
+    border: 1px solid var(--clr-border-subtle);
+    border-radius: var(--radius-xl);
+    padding: var(--space-6);
+    box-shadow: var(--shadow-sm);
+    transition: border-color var(--transition-base);
+  }
+
+  .card:hover {
+    border-color: var(--clr-border-default);
+  }
+
+  .card-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: var(--space-5);
+    padding-bottom: var(--space-4);
+    border-bottom: 1px solid var(--clr-border-subtle);
+  }
+
+  .card-title {
+    font-family: var(--font-display);
+    font-size: var(--fs-md);
+    font-weight: var(--fw-bold);
+    letter-spacing: var(--ls-tight);
+    color: var(--clr-text-primary);
+    display: flex;
+    align-items: center;
+    gap: var(--space-2);
+  }
+
+  .card-title-icon {
+    font-size: var(--fs-lg);
+    color: var(--clr-accent-primary);
+  }
+
+  /*  MISC  */
+  .divider {
+    height: 1px;
+    background: var(--clr-border-subtle);
+  }
+
+  .chip {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-1);
+    padding: 2px var(--space-3);
+    background: var(--clr-bg-elevated);
+    border: 1px solid var(--clr-border-subtle);
+    border-radius: var(--radius-full);
+    font-size: var(--fs-xs);
+    font-weight: var(--fw-medium);
+    color: var(--clr-text-secondary);
+  }
+}

@@ -1,0 +1,750 @@
+<!doctype html>
+<html lang="en" data-theme="dark">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta
+      name="description"
+      content="POS — Point of Sale System powered by IndexedDB"
+    />
+    <title>POS System</title>
+
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=JetBrains+Mono:wght@400;600;700&family=Syne:wght@700;800&display=swap"
+      rel="stylesheet"
+    />
+
+    <!-- CSS -->
+    <link rel="stylesheet" href="./css/style.css" />
+  </head>
+  <body>
+    <div class="app-wrapper">
+      <header class="app-header" role="banner">
+        <!-- Mobile menu button -->
+        <button
+          class="mobile-menu-btn"
+          id="mobileMenuBtn"
+          aria-label="Toggle menu"
+        >
+          ☰
+        </button>
+
+        <!-- Brand -->
+        <div class="header-brand">
+          <div class="header-brand-icon" aria-hidden="true">🛒</div>
+          <span class="header-brand-text">POS</span>
+          <span class="header-brand-badge">OFFLINE</span>
+        </div>
+
+        <div class="header-spacer"></div>
+
+        <!-- Status indicator -->
+        <div class="header-status" aria-live="polite">
+          <span class="status-dot"></span>
+          <span>All data local</span>
+        </div>
+
+        <!-- Theme Toggle -->
+        <button
+          class="theme-toggle"
+          id="themeToggle"
+          aria-label="Toggle theme"
+          title="Switch theme"
+        >
+          <span id="themeIconLabel">🌙 Dark</span>
+          <div class="toggle-track" aria-hidden="true">
+            <div class="toggle-thumb"></div>
+          </div>
+        </button>
+      </header>
+
+      <!-- Sidebar backdrop (mobile) -->
+      <div class="sidebar-backdrop" id="sidebarBackdrop"></div>
+
+      <div class="app-body">
+        <!--  SIDEBAR -->
+        <aside
+          class="sidebar"
+          id="sidebar"
+          role="navigation"
+          aria-label="Main navigation"
+        >
+          <p class="sidebar-section-label">Menu</p>
+          <nav class="sidebar-nav">
+            <button
+              class="nav-item"
+              data-page="new-sale"
+              id="nav-new-sale"
+              aria-current="false"
+            >
+              <span class="nav-item-icon" aria-hidden="true">⚡</span>
+              <span class="nav-item-text">New Sale</span>
+            </button>
+
+            <button
+              class="nav-item"
+              data-page="product-list"
+              id="nav-product-list"
+              aria-current="false"
+            >
+              <span class="nav-item-icon" aria-hidden="true">📦</span>
+              <span class="nav-item-text">Product List</span>
+              <span class="nav-item-badge" id="productCountBadge">0</span>
+            </button>
+
+            <button
+              class="nav-item"
+              data-page="purchase-list"
+              id="nav-purchase-list"
+              aria-current="false"
+            >
+              <span class="nav-item-icon" aria-hidden="true">📋</span>
+              <span class="nav-item-text">Purchase List</span>
+              <span class="nav-item-badge" id="saleCountBadge">0</span>
+            </button>
+          </nav>
+
+          <div class="sidebar-divider"></div>
+
+          <div class="sidebar-footer">
+            <button
+              class="nav-item"
+              id="exportBtn"
+              title="Export sales data (JSON)"
+            >
+              <span class="nav-item-icon" aria-hidden="true">⬇️</span>
+              <span class="nav-item-text">Export Data</span>
+            </button>
+          </div>
+        </aside>
+
+        <!--  MAIN CONTENT -->
+        <main class="main-content" id="mainContent">
+          <!-- PAGE: NEW SALE -->
+
+          <section
+            class="page-view active"
+            id="page-new-sale"
+            aria-label="New Sale"
+          >
+            <div class="page-header">
+              <div>
+                <h1 class="page-title">New Sale</h1>
+                <p class="page-subtitle">
+                  Add products to cart and complete the sale
+                </p>
+              </div>
+              <button class="btn btn-secondary btn-sm" id="clearCartBtn">
+                🗑 Clear Cart
+              </button>
+            </div>
+
+            <!-- POS Grid (draggable panels) -->
+            <div class="pos-grid" id="posGrid">
+              <!-- LEFT PANEL: Product Selection -->
+              <div
+                class="pos-panel"
+                id="panel-selection"
+                draggable="true"
+                data-panel="selection"
+                aria-label="Product selection panel"
+              >
+                <div class="panel-header">
+                  <span
+                    class="drag-handle"
+                    title="Drag to reorder"
+                    aria-hidden="true"
+                    >⠿⠿</span
+                  >
+                  <span class="card-title-icon" aria-hidden="true">🛍</span>
+                  <h2 class="panel-title">Product Selection</h2>
+                </div>
+
+                <div class="panel-body">
+                  <form class="product-form" id="productForm" novalidate>
+                    <!-- Select Product -->
+                    <div class="form-group">
+                      <label class="form-label" for="productSelect"
+                        >Select Product</label
+                      >
+                      <div class="select-wrapper">
+                        <select
+                          class="form-control"
+                          id="productSelect"
+                          required
+                        >
+                          <option value="">— Choose a product —</option>
+                        </select>
+                      </div>
+                    </div>
+
+                    <!-- Auto-populated Price -->
+                    <div class="form-group">
+                      <label class="form-label" for="productPrice"
+                        >Unit Price</label
+                      >
+                      <div class="price-display" id="priceDisplay">
+                        <span class="price-display-label"
+                          >Price will auto-populate after product
+                          selection</span
+                        >
+                        <span class="price-display-value" id="priceValue"
+                          >—</span
+                        >
+                      </div>
+                      <input type="hidden" id="productPrice" value="" />
+                    </div>
+
+                    <!-- Quantity -->
+                    <div class="form-group">
+                      <label class="form-label">Quantity</label>
+                      <div class="qty-row">
+                        <div class="qty-stepper">
+                          <button
+                            type="button"
+                            class="qty-stepper-btn"
+                            id="qtyMinus"
+                            aria-label="Decrease quantity"
+                          >
+                            −
+                          </button>
+                          <input
+                            type="number"
+                            id="quantityInput"
+                            value="1"
+                            min="1"
+                            max="9999"
+                            aria-label="Quantity"
+                            autocomplete="off"
+                          />
+                          <button
+                            type="button"
+                            class="qty-stepper-btn"
+                            id="qtyPlus"
+                            aria-label="Increase quantity"
+                          >
+                            +
+                          </button>
+                        </div>
+                        <button
+                          type="submit"
+                          class="btn btn-primary"
+                          id="addToCartBtn"
+                        >
+                          ＋ Add to Cart
+                        </button>
+                      </div>
+                    </div>
+                  </form>
+
+                  <!-- Quick Info Strip -->
+                  <div id="productInfo" style="display: none">
+                    <div class="divider"></div>
+                    <div
+                      style="
+                        display: flex;
+                        align-items: center;
+                        gap: var(--space-3);
+                        padding-top: var(--space-3);
+                      "
+                    >
+                      <span class="chip" id="stockChip">— in stock</span>
+                      <span
+                        style="
+                          font-size: var(--fs-xs);
+                          color: var(--clr-text-muted);
+                        "
+                        id="productDescChip"
+                      ></span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <!-- /panel-selection -->
+
+              <!-- RIGHT PANEL: Sales Summary -->
+              <div
+                class="pos-panel"
+                id="panel-summary"
+                draggable="true"
+                data-panel="summary"
+                aria-label="Sales summary panel"
+              >
+                <div class="panel-header">
+                  <span
+                    class="drag-handle"
+                    title="Drag to reorder"
+                    aria-hidden="true"
+                    >⠿⠿</span
+                  >
+                  <span class="card-title-icon" aria-hidden="true">📊</span>
+                  <h2 class="panel-title">Sales Summary</h2>
+                  <span class="chip" id="cartCountChip">0 items</span>
+                </div>
+
+                <div class="panel-body" style="padding: 0; gap: 0">
+                  <div class="summary-table-wrap">
+                    <!-- Cart empty state -->
+                    <div class="empty-state" id="cartEmptyState">
+                      <div class="empty-icon" aria-hidden="true">🛒</div>
+                      <p class="empty-title">Your cart is empty</p>
+                      <p class="empty-desc">
+                        Select a product from the left panel to get started
+                      </p>
+                    </div>
+
+                    <!-- Cart table (hidden when empty) -->
+                    <table
+                      class="summary-table"
+                      id="cartTable"
+                      aria-label="Cart items"
+                      style="display: none"
+                    >
+                      <thead>
+                        <tr>
+                          <th scope="col">Product</th>
+                          <th scope="col">Price</th>
+                          <th scope="col">Qty</th>
+                          <th scope="col">Total</th>
+                          <th scope="col">
+                            <span class="visually-hidden">Remove</span>
+                          </th>
+                        </tr>
+                      </thead>
+                      <tbody id="cartTableBody">
+                        <!-- Rows injected by JS -->
+                      </tbody>
+                    </table>
+                  </div>
+                </div>
+
+                <!-- Summary Footer -->
+                <div class="summary-footer">
+                  <div class="total-row">
+                    <span class="total-label">Total Payable</span>
+                    <div class="total-amount" id="cartTotal">৳ 0.00</div>
+                  </div>
+                  <button
+                    class="btn btn-accent btn-lg"
+                    id="goToPaymentBtn"
+                    style="width: 100%"
+                    disabled
+                  >
+                    💳 Go to Payment
+                  </button>
+                </div>
+              </div>
+              <!-- /panel-summary -->
+            </div>
+            <!-- /pos-grid -->
+          </section>
+          <!-- page-new-sale -->
+
+          <!--PAGE: PRODUCT LIST-->
+          <section
+            class="page-view"
+            id="page-product-list"
+            aria-label="Product list"
+          >
+            <div class="page-header">
+              <div>
+                <h1 class="page-title">Product List</h1>
+                <p class="page-subtitle">Manage your product inventory</p>
+              </div>
+              <button class="btn btn-primary" id="openAddProductBtn">
+                ＋ Add Product
+              </button>
+            </div>
+
+            <div class="data-table-wrap">
+              <div class="data-table-header">
+                <span class="data-table-title">All Products</span>
+                <div class="data-table-search">
+                  <span aria-hidden="true">🔍</span>
+                  <input
+                    type="search"
+                    id="productSearchInput"
+                    placeholder="Search products..."
+                    aria-label="Search products"
+                  />
+                </div>
+              </div>
+
+              <div class="data-table-scroll">
+                <table
+                  class="data-table"
+                  id="productListTable"
+                  aria-label="Product list"
+                >
+                  <thead>
+                    <tr>
+                      <th scope="col">#</th>
+                      <th scope="col">Product Name</th>
+                      <th scope="col">Description</th>
+                      <th scope="col">Price (৳)</th>
+                      <th scope="col">Stock</th>
+                      <th scope="col">Actions</th>
+                    </tr>
+                  </thead>
+                  <tbody id="productListBody">
+                    <!-- Rows injected by JS -->
+                  </tbody>
+                </table>
+              </div>
+
+              <div id="productListEmpty" class="no-data" style="display: none">
+                <div class="no-data-icon" aria-hidden="true">📦</div>
+                <p class="no-data-title">No products yet</p>
+                <p class="no-data-text">
+                  Click "Add Product" to add your first product to the
+                  inventory.
+                </p>
+              </div>
+            </div>
+          </section>
+          <!-- /page-product-list -->
+
+          <!--  PAGE: PURCHASE LIST-->
+          <section
+            class="page-view"
+            id="page-purchase-list"
+            aria-label="Purchase history"
+          >
+            <div class="page-header">
+              <div>
+                <h1 class="page-title">Purchase List</h1>
+                <p class="page-subtitle">All completed sales & transactions</p>
+              </div>
+              <button class="btn btn-export btn-sm" id="exportSalesBtn">
+                ⬇ Export JSON
+              </button>
+            </div>
+
+            <!-- Stats Row -->
+            <div class="stats-grid">
+              <div class="stat-card accent-green">
+                <div class="stat-icon">💰</div>
+                <div class="stat-value" id="statRevenue">৳0</div>
+                <div class="stat-label">Total Revenue</div>
+              </div>
+              <div class="stat-card accent-blue">
+                <div class="stat-icon">📋</div>
+                <div class="stat-value" id="statSales">0</div>
+                <div class="stat-label">Total Sales</div>
+              </div>
+              <div class="stat-card accent-warn">
+                <div class="stat-icon">🔖</div>
+                <div class="stat-value" id="statItems">0</div>
+                <div class="stat-label">Items Sold</div>
+              </div>
+              <div class="stat-card accent-danger">
+                <div class="stat-icon">⏳</div>
+                <div class="stat-value" id="statDue">৳0</div>
+                <div class="stat-label">Total Due</div>
+              </div>
+            </div>
+
+            <!-- Sales records list -->
+            <div id="purchaseListContainer">
+              <!-- Records injected by JS -->
+            </div>
+
+            <div id="purchaseListEmpty" class="no-data" style="display: none">
+              <div class="no-data-icon" aria-hidden="true">📋</div>
+              <p class="no-data-title">No sales yet</p>
+              <p class="no-data-text">
+                Complete a sale from the New Sale page and it will appear here.
+              </p>
+            </div>
+          </section>
+          <!-- /page-purchase-list -->
+        </main>
+        <!-- /main-content -->
+      </div>
+      <!-- /app-body -->
+    </div>
+    <!-- /app-wrapper -->
+
+    <!--  MODAL: PAYMENT CONFIRMATION -->
+    <div
+      class="modal-overlay"
+      id="paymentModal"
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="paymentModalTitle"
+    >
+      <div class="modal">
+        <div class="modal-header">
+          <div>
+            <h2 class="modal-title" id="paymentModalTitle">
+              💳 Payment Confirmation
+            </h2>
+            <p class="modal-subtitle">Review and complete the transaction</p>
+          </div>
+          <button
+            class="modal-close"
+            id="closePaymentModal"
+            aria-label="Close payment modal"
+          >
+            ✕
+          </button>
+        </div>
+
+        <div class="modal-body">
+          <!-- Summary info boxes -->
+          <div class="modal-grid">
+            <div class="modal-info-box">
+              <span class="info-box-label">Total Payable</span>
+              <div class="info-box-value accent" id="modalTotalPayable">
+                ৳ 0.00
+              </div>
+              <span
+                style="font-size: var(--fs-xs); color: var(--clr-text-muted)"
+                id="modalTotalItems"
+                >0 items</span
+              >
+            </div>
+            <div class="modal-info-box">
+              <span class="info-box-label">Purchase Date</span>
+              <div
+                class="info-box-value"
+                style="font-size: var(--fs-md)"
+                id="modalDate"
+              >
+                —
+              </div>
+            </div>
+          </div>
+
+          <!-- Customer name -->
+          <div class="form-group">
+            <label class="form-label" for="customerName">Customer Name</label>
+            <input
+              type="text"
+              class="form-control"
+              id="customerName"
+              placeholder="Enter customer name..."
+              autocomplete="off"
+            />
+          </div>
+
+          <!-- Amount paying -->
+          <div class="form-group">
+            <label class="form-label" for="amountPaid">Amount Paying (৳)</label>
+            <input
+              type="number"
+              class="form-control"
+              id="amountPaid"
+              placeholder="0.00"
+              min="0"
+              step="0.01"
+              autocomplete="off"
+            />
+          </div>
+
+          <!-- Due Amount -->
+          <div class="form-group">
+            <label class="form-label">Total Due / Change</label>
+            <div class="modal-grid">
+              <div class="modal-info-box">
+                <span class="info-box-label">Remaining Due</span>
+                <div class="info-box-value danger" id="modalDueAmount">
+                  ৳ 0.00
+                </div>
+                <div class="balance-indicator" id="balanceIndicator">
+                  <span></span>
+                </div>
+              </div>
+              <div class="modal-info-box">
+                <span class="info-box-label">Change to Return</span>
+                <div class="info-box-value accent" id="modalChangeAmount">
+                  ৳ 0.00
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Payment Method -->
+          <div class="form-group">
+            <label class="form-label">Payment Method</label>
+            <div
+              class="payment-methods"
+              role="radiogroup"
+              aria-label="Payment method"
+            >
+              <div
+                class="payment-method-btn selected"
+                data-method="Cash"
+                role="radio"
+                aria-checked="true"
+                tabindex="0"
+              >
+                <span class="payment-method-icon" aria-hidden="true">💵</span>
+                <span class="payment-method-label">Cash</span>
+              </div>
+              <div
+                class="payment-method-btn"
+                data-method="MFS"
+                role="radio"
+                aria-checked="false"
+                tabindex="0"
+              >
+                <span class="payment-method-icon" aria-hidden="true">📱</span>
+                <span class="payment-method-label">MFS</span>
+              </div>
+              <div
+                class="payment-method-btn"
+                data-method="Card"
+                role="radio"
+                aria-checked="false"
+                tabindex="0"
+              >
+                <span class="payment-method-icon" aria-hidden="true">💳</span>
+                <span class="payment-method-label">Card</span>
+              </div>
+              <div
+                class="payment-method-btn"
+                data-method="Bank"
+                role="radio"
+                aria-checked="false"
+                tabindex="0"
+              >
+                <span class="payment-method-icon" aria-hidden="true">🏦</span>
+                <span class="payment-method-label">Bank</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="modal-footer">
+          <button class="btn btn-secondary" id="cancelPaymentBtn">
+            Cancel
+          </button>
+          <button class="btn btn-accent btn-lg" id="completeSaleBtn">
+            ✓ Complete Sale
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- MODAL: ADD / EDIT PRODUCT -->
+    <div
+      class="modal-overlay"
+      id="productModal"
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="productModalTitle"
+    >
+      <div class="modal">
+        <div class="modal-header">
+          <div>
+            <h2 class="modal-title" id="productModalTitle">📦 Add Product</h2>
+            <p class="modal-subtitle" id="productModalSubtitle">
+              Fill in the details below
+            </p>
+          </div>
+          <button
+            class="modal-close"
+            id="closeProductModal"
+            aria-label="Close product modal"
+          >
+            ✕
+          </button>
+        </div>
+
+        <form id="addProductForm" novalidate>
+          <input type="hidden" id="editProductId" value="" />
+
+          <div class="modal-body">
+            <div class="form-group">
+              <label class="form-label" for="pName"
+                >Product Name
+                <span style="color: var(--clr-danger)">*</span></label
+              >
+              <input
+                type="text"
+                class="form-control"
+                id="pName"
+                placeholder="e.g., Wireless Mouse"
+                required
+                autocomplete="off"
+              />
+            </div>
+
+            <div class="form-group">
+              <label class="form-label" for="pDesc">Description</label>
+              <input
+                type="text"
+                class="form-control"
+                id="pDesc"
+                placeholder="Short description (optional)"
+                autocomplete="off"
+              />
+            </div>
+
+            <div class="modal-grid-3">
+              <div class="form-group">
+                <label class="form-label" for="pPrice"
+                  >Selling Price (৳)
+                  <span style="color: var(--clr-danger)">*</span></label
+                >
+                <input
+                  type="number"
+                  class="form-control"
+                  id="pPrice"
+                  placeholder="0.00"
+                  min="0"
+                  step="0.01"
+                  required
+                />
+              </div>
+
+              <div class="form-group">
+                <label class="form-label" for="pStock"
+                  >Quantity in Stock
+                  <span style="color: var(--clr-danger)">*</span></label
+                >
+                <input
+                  type="number"
+                  class="form-control"
+                  id="pStock"
+                  placeholder="0"
+                  min="0"
+                  step="1"
+                  required
+                />
+              </div>
+            </div>
+          </div>
+
+          <div class="modal-footer">
+            <button
+              type="button"
+              class="btn btn-secondary"
+              id="cancelProductBtn"
+            >
+              Cancel
+            </button>
+            <button type="submit" class="btn btn-primary" id="saveProductBtn">
+              💾 Save Product
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+
+    <!--  TOAST CONTAINER -->
+    <div
+      class="toast-container"
+      id="toastContainer"
+      role="region"
+      aria-live="polite"
+      aria-label="Notifications"
+    ></div>
+
+    <script type="module" defer src="js/app.js"></script>
+  </body>
+</html>

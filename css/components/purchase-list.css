@@ -1,0 +1,206 @@
+@layer components {
+  /*  STATS GRID  */
+  .stats-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: var(--space-4);
+  }
+
+  .stat-card {
+    background: var(--clr-bg-card);
+    border: 1px solid var(--clr-border-subtle);
+    border-radius: var(--radius-xl);
+    padding: var(--space-5);
+    box-shadow: var(--shadow-sm);
+    transition: all var(--transition-base);
+    position: relative;
+    overflow: hidden;
+  }
+
+  .stat-card::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 2px;
+  }
+
+  .stat-card.accent-green::before {
+    background: var(--clr-accent-primary);
+  }
+  .stat-card.accent-blue::before {
+    background: var(--clr-accent-2);
+  }
+  .stat-card.accent-warn::before {
+    background: var(--clr-warning);
+  }
+  .stat-card.accent-danger::before {
+    background: var(--clr-danger);
+  }
+
+  .stat-card:hover {
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-md);
+    border-color: var(--clr-border-default);
+  }
+
+  .stat-icon {
+    font-size: var(--fs-2xl);
+    margin-bottom: var(--space-3);
+    opacity: 0.9;
+  }
+
+  .stat-value {
+    font-family: var(--font-mono);
+    font-size: var(--fs-2xl);
+    font-weight: var(--fw-black);
+    letter-spacing: var(--ls-tight);
+    color: var(--clr-text-primary);
+    line-height: 1;
+    margin-bottom: var(--space-1);
+  }
+
+  .stat-label {
+    font-size: var(--fs-xs);
+    font-weight: var(--fw-semibold);
+    letter-spacing: var(--ls-widest);
+    text-transform: uppercase;
+    color: var(--clr-text-muted);
+  }
+
+  /*  PURCHASE RECORDS  */
+  .purchase-record {
+    background: var(--clr-bg-card);
+    border: 1px solid var(--clr-border-subtle);
+    border-radius: var(--radius-xl);
+    overflow: hidden;
+    margin-bottom: var(--space-3);
+    transition: all var(--transition-base);
+    box-shadow: var(--shadow-sm);
+  }
+
+  .purchase-record:hover {
+    border-color: var(--clr-border-default);
+    box-shadow: var(--shadow-md);
+  }
+
+  .purchase-record-header {
+    display: grid;
+    grid-template-columns: auto 1fr auto auto auto;
+    align-items: center;
+    gap: var(--space-5);
+    padding: var(--space-4) var(--space-5);
+    cursor: pointer;
+    user-select: none;
+  }
+
+  .record-number {
+    font-family: var(--font-mono);
+    font-size: var(--fs-sm);
+    font-weight: var(--fw-bold);
+    color: var(--clr-text-muted);
+    background: var(--clr-bg-elevated);
+    border: 1px solid var(--clr-border-subtle);
+    padding: 2px var(--space-3);
+    border-radius: var(--radius-full);
+    min-width: 50px;
+    text-align: center;
+  }
+
+  .record-customer {
+    font-weight: var(--fw-semibold);
+    color: var(--clr-text-primary);
+  }
+
+  .record-date {
+    font-size: var(--fs-sm);
+    color: var(--clr-text-muted);
+    font-family: var(--font-mono);
+  }
+
+  .record-total {
+    font-family: var(--font-mono);
+    font-weight: var(--fw-black);
+    font-size: var(--fs-lg);
+    color: var(--clr-accent-primary);
+  }
+
+  .record-expand-icon {
+    color: var(--clr-text-muted);
+    transition: transform var(--transition-base);
+    font-size: var(--fs-base);
+  }
+
+  .purchase-record.expanded .record-expand-icon {
+    transform: rotate(180deg);
+  }
+
+  .purchase-record-body {
+    display: none;
+    border-top: 1px solid var(--clr-border-subtle);
+    padding: var(--space-4) var(--space-5);
+    background: var(--clr-bg-elevated);
+  }
+
+  .purchase-record.expanded .purchase-record-body {
+    display: block;
+  }
+
+  .record-detail-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: var(--space-4);
+    margin-bottom: var(--space-4);
+  }
+
+  .record-detail-item {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-1);
+  }
+
+  .record-detail-label {
+    font-size: var(--fs-xs);
+    font-weight: var(--fw-semibold);
+    letter-spacing: var(--ls-widest);
+    text-transform: uppercase;
+    color: var(--clr-text-muted);
+  }
+
+  .record-detail-value {
+    font-size: var(--fs-base);
+    font-weight: var(--fw-semibold);
+    color: var(--clr-text-primary);
+    font-family: var(--font-mono);
+  }
+
+  .payment-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-1);
+    padding: 3px var(--space-3);
+    border-radius: var(--radius-full);
+    font-size: var(--fs-xs);
+    font-weight: var(--fw-bold);
+    letter-spacing: var(--ls-wide);
+    text-transform: uppercase;
+  }
+
+  .payment-badge.cash {
+    background: rgba(0, 201, 167, 0.12);
+    color: var(--clr-badge-cash);
+  }
+  .payment-badge.mfs {
+    background: rgba(79, 142, 255, 0.12);
+    color: var(--clr-badge-mfs);
+  }
+  .payment-badge.card {
+    background: rgba(255, 179, 71, 0.12);
+    color: var(--clr-badge-card);
+  }
+  .payment-badge.bank {
+    background: rgba(199, 125, 255, 0.12);
+    color: var(--clr-badge-bank);
+  }
+}
