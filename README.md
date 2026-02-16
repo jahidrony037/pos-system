@@ -1,4 +1,4 @@
-# pos-system
+# POS System
 
 ## How to run this Project ?
 
